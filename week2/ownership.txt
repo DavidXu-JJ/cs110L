@@ -9,6 +9,16 @@ fn main() {
     println!("{}", ref3.to_uppercase());
 }
 ```
+```
+fn main() {
+    let mut s = String::from("hello");
+    let mut ref1 = s;
+    let mut ref2 = ref1;
+    let mut ref3 = ref2;
+    ref3 = String::from("goodbye");
+    println!("{}", ref3.to_uppercase());
+}
+```
 
 
 
@@ -17,6 +27,12 @@ Example 2:
 fn drip_drop() -> &String {
     let s = String::from("hello world!");
     return &s;
+}
+```
+```
+fn drip_drop() -> String {
+    let s = String::from("hello world!");
+    s
 }
 ```
 
@@ -29,6 +45,16 @@ fn main() {
     let mut v = Vec::new();
     v.push(s1);
     let s2: String = v[0];
+    println!("{}", s2);
+}
+```
+
+```
+fn main() {
+    let s1 = String::from("hello");
+    let mut v = Vec::new();
+    v.push(s1);
+    let s2: &String = &v[0];
     println!("{}", s2);
 }
 ```

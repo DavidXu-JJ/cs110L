@@ -7,30 +7,61 @@ use std::process;
 pub mod grid;
 
 /// Reads the file at the supplied path, and returns a vector of strings.
-#[allow(unused)] // TODO: delete this line when you implement this function
 fn read_file_lines(filename: &String) -> Result<Vec<String>, io::Error> {
-    unimplemented!();
+    let file = File::open(filename)?; 
+    let mut ret = Vec::new(); 
+    for line in io::BufReader::new(file).lines(){
+        let line_str = line?; 
+        ret.push(line_str); 
+    }
+    Ok(ret)
     // Be sure to delete the #[allow(unused)] line above
 }
 
-#[allow(unused)] // TODO: delete this line when you implement this function
 fn lcs(seq1: &Vec<String>, seq2: &Vec<String>) -> Grid {
     // Note: Feel free to use unwrap() in this code, as long as you're basically certain it'll
     // never happen. Conceptually, unwrap() is justified here, because there's not really any error
     // condition you're watching out for (i.e. as long as your code is written correctly, nothing
     // external can go wrong that we would want to handle in higher-level functions). The unwrap()
     // calls act like having asserts in C code, i.e. as guards against programming error.
-    unimplemented!();
+    
+    let mut dp: Grid = Grid::new(seq1.len() + 1, seq2.len() + 1); 
+    for i in 0..seq1.len(){
+        for j in 0..seq2.len(){
+            if seq1[i] == seq2[j]{
+                dp.set(i + 1, j + 1, dp.get(i + 1, j + 1) .unwrap()
+                    .max(dp.get(i, j).unwrap() + 1)); 
+            }else{
+                dp.set(i + 1, j + 1, dp.get(i + 1, j + 1) .unwrap()
+                    .max(dp.get(i, j + 1).unwrap())); 
+                dp.set(i + 1, j + 1, dp.get(i + 1, j + 1) .unwrap()
+                    .max(dp.get(i + 1, j).unwrap())); 
+            }
+        }
+    }
+    dp
     // Be sure to delete the #[allow(unused)] line above
 }
 
-#[allow(unused)] // TODO: delete this line when you implement this function
 fn print_diff(lcs_table: &Grid, lines1: &Vec<String>, lines2: &Vec<String>, i: usize, j: usize) {
-    unimplemented!();
+    if i > 0 && j > 0 && lines1[i - 1] == lines2[j - 1]{
+       print_diff(&lcs_table, &lines1, &lines2, i - 1, j - 1); 
+       println!("  {}", lines1[i - 1]); 
+    }
+    else if j > 0 && (i == 0 || lcs_table.get(i, j - 1).unwrap() >= lcs_table.get(i - 1, j).unwrap()){
+       print_diff(&lcs_table, &lines1, &lines2, i, j - 1); 
+       println!("> {}", lines2[j - 1]); 
+    }
+    else if i > 0 && (j == 0 || lcs_table.get(i, j - 1).unwrap() < lcs_table.get(i - 1, j).unwrap()){
+       print_diff(&lcs_table, &lines1, &lines2, i - 1, j); 
+       println!("< {}", lines1[i - 1]); 
+    }
+    else  {
+        println!("");
+    }
     // Be sure to delete the #[allow(unused)] line above
 }
 
-#[allow(unused)] // TODO: delete this line when you implement this function
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
@@ -40,7 +71,19 @@ fn main() {
     let filename1 = &args[1];
     let filename2 = &args[2];
 
-    unimplemented!();
+    let file1 = read_file_lines(&filename1); 
+    let file1 = match file1 {
+        Ok(file1)  => file1, 
+        Err(error) => panic!("Problem opening the file: {:?}", error),
+    }; 
+    let file2 = read_file_lines(&filename2); 
+    let file2 = match file2 {
+        Ok(file2)  => file2, 
+        Err(error) => panic!("Problem opening the file: {:?}", error),
+    }; 
+
+    let lcs = lcs(&file1, &file2); 
+    print_diff(&lcs, &file1, &file2, file1.len(), file2.len()); 
     // Be sure to delete the #[allow(unused)] line above
 }
 

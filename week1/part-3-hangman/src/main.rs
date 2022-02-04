@@ -27,6 +27,16 @@ fn pick_a_random_word() -> String {
     String::from(words[rand::thread_rng().gen_range(0, words.len())].trim())
 }
 
+fn output(already_guessed:& Vec<char>,history:& String, chance: &mut i32){
+    print!("The word so far is "); 
+    for i in 0..already_guessed.len(){
+        print!("{}",already_guessed[i]);
+    }
+    print!("\n");
+    println!("You have guessed the following letters:{}",history);
+    println!("You have {} guesses left",chance);
+}
+
 fn main() {
     let secret_word = pick_a_random_word();
     // Note: given what you know about Rust so far, it's easier to pull characters out of a
@@ -34,7 +44,46 @@ fn main() {
     // secret_word by doing secret_word_chars[i].
     let secret_word_chars: Vec<char> = secret_word.chars().collect();
     // Uncomment for debugging:
-    // println!("random word: {}", secret_word);
-
+    println!("random word: {}", secret_word);
+    let mut already_guessed:Vec<char> = Vec::new(); 
+    for i in secret_word_chars.iter(){
+        already_guessed.push('-');
+    }
+    let mut left = secret_word_chars.len(); 
+    let mut history:String = String::new(); 
+    let mut chance:i32 = 5;
+    while left != 0{
+        if chance==0{
+            break;
+        }
+        output(&already_guessed, &history,&mut chance); 
+        print!("Please guess a letter: ");
+        io::stdout()
+            .flush()
+            .expect("Error flushing stdout.");
+        let mut guess = String::new();
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("Error reading line.");
+        let mut _correct:bool =false;
+        let guess_char : Vec<char> = guess.chars().collect();
+        history.push(guess_char[0]);
+        for i in 0..secret_word.len(){
+            if already_guessed[i]=='-' && secret_word_chars[i]==guess_char[0]{
+                already_guessed[i]=guess_char[0];
+                left-=1;
+                _correct=true;
+                break;
+            }
+        }
+        if _correct==false{
+            chance-=1;
+        }
+    }
+    if left==0{
+        println!("Congratulations you guessed the secret word:{}",secret_word);
+    }else{
+        println!("Sorry, you ran out of guesses!");
+    }
     // Your code here! :)
 }
